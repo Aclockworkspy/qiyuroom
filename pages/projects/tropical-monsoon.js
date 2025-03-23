@@ -54,16 +54,11 @@ export default function TropicalMonsonPage() {
        ">
         
         <p className="mb-4">
-          I spent the two months documenting the end of winter of 2023 in Los Angeles, 
-          through the camera, taking a cross-section of Echo Park along the 101 freeway to Hollenbeck Park. 
-          Most of the material comes from places where all has gone topsy-turvy by rain, trivial images of sunlight, and wet rooms.
+        I spent two months documenting the end of winter 2023 in Los Angeles through the camera, tracing a cross-section from Echo Park along the 101 freeway to Hollenbeck Park. Most of the material comes from places where all has gone topsy-turvy by rain, trivial images of sunlight, and wet rooms.
         </p>
 
         <p>
-          It began as an intention to shoot without subjects or direction—an exercise in not searching for meaning. 
-          As the footage grew, the capture of the stretch of water vapor became a conduit for nostalgia.
-          These fragmented cityscapes swept through my room like a monsoon. They reshaped the city for me. 
-          This winter, Los Angeles, an arrival city, unfolded to me like an opening fist, had never been more intimate.
+        It began as an intention to shoot without subjects or direction—an exercise in not searching for meaning. As the footage grew, the captured stretches of water vapor became a conduit for nostalgia. These fragmented cityscapes, connecting memories from elsewhere, swept through my room like a monsoon. They reshaped the city for me. This winter, Los Angeles, an arrival city, unfolded to me like an opening fist, had never been more intimate.
         </p>
       </div>
 
