@@ -2,76 +2,90 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router"; // 用于页面跳转
 import Image from "next/image";
 
-export default function PortfolioCard({ title, imageSrc, coverSrc }) {
+export default function PortfolioCard({ title, imageSrc, coverSrc, enableSound }) {
   const router = useRouter();
   const videoRef = useRef(null);
+  const cardRef = useRef(null); 
   const [showCover, setShowCover] = useState(true); // 控制封面是否显示
   const [fadeCover, setFadeCover] = useState(false); // 控制封面渐隐
-
-  // 原本通过 JS 获取 window.innerHeight 动态设置高度，
-  // 但使用 Tailwind 提供的 min-h-screen（min-height: 100vh），无需监听窗口变化，
-  // 在移动端Safari上表现稳定。
-
-  //  原高度监听逻辑（已移除）
-  // const [windowHeight, setWindowHeight] = useState(0);
-  // useEffect(() => {
-  //   setWindowHeight(window.innerHeight); 组件加载时，初始化 windowHeight，这样 windowHeight 的初始值就等于 window.innerHeight，保证 PortfolioCard 从一开始就等于视窗高度
-  //   const handleResize = () => {
-  //     setWindowHeight(window.innerHeight);
-  //   }; 监听窗口大小变化
-  //   window.addEventListener("resize", handleResize);
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);只在组件加载时执行一次
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => { // 设定定时器 
+
+    let observer; // <<< 修正：observer 提前声明，避免作用域问题
+
     const fadeTimer = setTimeout(() => {  
       setFadeCover(true); //3。5 秒后渐隐封面
-      }, 3500);
+    }, 3500);
       
     const hideTimer = setTimeout(() => {
       setShowCover(false);   // 4 秒后完全移除封面
-        if (videoRef.current) {
-          videoRef.current.play(); // 并手动开始播放视频
-        }
-      }, 4000);
+      if (videoRef.current) {
+        videoRef.current.play(); // 并手动开始播放视频
+      }
+    }, 4000);
+
+    // <<< 新增：只对 enableSound 的项目做画面检测
+    if (enableSound) {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setIsMuted(false); // <<< 进入画面，自动开声音
+          } else {
+            setIsMuted(true); // <<< 离开画面，自动静音
+          }
+        },
+        { threshold: 0.6 } // <<< 至少 60% 出现在画面里才算进入
+      );
+
+      observer.observe(cardRef.current);
+    }
 
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(hideTimer);
+
+      if (observer) { // <<< 修正：observer 可能不存在
+        observer.disconnect();
+      }
     };
-  }, []);
+
+  }, [enableSound]);
+    
 
   const isVideo = imageSrc.endsWith(".mp4") || imageSrc.endsWith(".webm") || imageSrc.endsWith(".ogg"); // 判断是否是视频
 
   return (
-    <div className="relative w-full min-h-screen"> 
+    <div ref={cardRef} className="relative w-full min-h-screen"> 
     {/* 封面图片带淡出效果 */}
     {showCover && coverSrc && (
-  <Image
-    src={coverSrc}
-    alt="Cover"
-    layout="fill"
-    objectFit="cover"
-    objectPosition="center"
-    className={`absolute top-0 left-0 w-full h-full z-10 transition-opacity duration-500 ease-in-out ${
-      fadeCover ? "opacity-0" : "opacity-100"
-    }`}
-  />
-)}
+      <Image
+        src={coverSrc}
+        alt="Cover"
+        layout="fill"
+        objectFit="cover"
+        objectPosition="center"
+        className={`absolute top-0 left-0 w-full h-full z-10 transition-opacity duration-500 ease-in-out ${
+          fadeCover ? "opacity-0" : "opacity-100"
+        }`}
+      />
+    )}
 
       {isVideo ? (
         <video
           ref={videoRef} // 绑定 videoRe
           loop
-          muted
+          autoPlay
+          muted={enableSound ? isMuted : true}
           playsInline
           preload="auto"
           onLoadedMetadata={(e) => e.target.playbackRate = 0.75} 
+          onClick={() => enableSound && setIsMuted(!isMuted)} // <<< 点击静音
           className="absolute top-0 left-0 w-full h-full object-cover z-0"
         >
           <source src={imageSrc} type="video/mp4" />
           Your browser does not support the video tag.
-          </video>
+        </video>
       ) : (
         <Image
           src={imageSrc}
