@@ -27,11 +27,19 @@ export default function PortfolioCard({ title, imageSrc, coverSrc, enableSound }
     if (enableSound) {
       observer = new IntersectionObserver(
         ([entry]) => {
-          // 暂时不在这里控制 mute
+          if (!videoRef.current) return;
+    
+          if (entry.isIntersecting) {
+            videoRef.current.muted = false;
+            setIsMuted(false);
+          } else {
+            videoRef.current.muted = true;
+            setIsMuted(true);
+          }
         },
         { threshold: 0.6 }
       );
-
+    
       if (cardRef.current) {
         observer.observe(cardRef.current);
       }
@@ -78,8 +86,15 @@ export default function PortfolioCard({ title, imageSrc, coverSrc, enableSound }
           onLoadedMetadata={(e) => (e.target.playbackRate = 0.75)}
           onClick={() => {
             if (!enableSound || !videoRef.current) return;
-            videoRef.current.muted = !videoRef.current.muted;
-            setIsMuted(videoRef.current.muted);
+          
+            if (videoRef.current.paused) {
+              videoRef.current.muted = false;
+              videoRef.current.play();
+              setIsMuted(false);
+            } else {
+              videoRef.current.muted = !videoRef.current.muted;
+              setIsMuted(videoRef.current.muted);
+            }
           }}
           className="absolute top-0 left-0 w-full h-full object-cover z-0"
         >
